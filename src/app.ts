@@ -1,9 +1,22 @@
-import express from "express";
+import express,{ Request, Response } from "express";
+import bodyParser from "body-parser";
 require('dotenv').config();
-import pool from "../database/poolConfig";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 const app = express();
 
-app.get("/", (req,res)=>{
+const corsOptions = {
+    origin : true,
+    credentials: true
+} 
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(cookieParser());
+
+app.get("/", (req:Request,res:Response)=>{
     res.send("This server is running successfully");
 })
 
