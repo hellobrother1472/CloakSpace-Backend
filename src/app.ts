@@ -3,6 +3,11 @@ import bodyParser from "body-parser";
 require('dotenv').config();
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
+import authUserMiddleware from "../middleware/authUserMiddleware";
+import { AuthenticatedRequest } from "../middleware/authUserMiddleware";
+
+import authRoutes from '../routes/authRoutes';
 const app = express();
 
 const corsOptions = {
@@ -16,12 +21,13 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/", (req:Request,res:Response)=>{
-    res.send("This server is running successfully");
+app.use('/api/auth',authRoutes);
+
+app.get("/",authUserMiddleware, (req:AuthenticatedRequest,res:Response)=>{
+    res.send(req.user);
 })
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT,()=>{
     console.log("server is up and running");
-    
 })

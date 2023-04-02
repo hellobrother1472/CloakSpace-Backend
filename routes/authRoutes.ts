@@ -13,7 +13,7 @@ router.post("/signUp", async (req: Request, res: Response) => {
 
 		// Checking if user already exist or not
 		const checkUserPresence = await pool.query(
-			"SELECT EXISTS(SELECT * FROM users WHERE email = $1 ",
+			"SELECT EXISTS(SELECT * FROM users WHERE email = $1)",
 			[email]
 		);
 		if (checkUserPresence.rows[0].exists) {
@@ -35,7 +35,7 @@ router.post("/signUp", async (req: Request, res: Response) => {
 			throw new Error("Unable to hash");
 		}
 	} catch (error) {
-		console.log(error.message);
+		console.log(error);
 		res.status(500).send({ message: "Internal server error occured" });
 	}
 });
