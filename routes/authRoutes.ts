@@ -7,9 +7,20 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET;
 const saltRounds = 10;
 
+interface signUpInfo {
+	username: string;
+	email: string;
+	user_password: string;
+}
+
+interface signInInfo {
+	username: string;
+	password: string;
+}
+
 router.post("/signUp", async (req: Request, res: Response) => {
 	try {
-		const { username, email, user_password } = req.body;
+		const { username, email, user_password }: signUpInfo = req.body;
 
 		// Checking if user already exist or not
 		const checkUserPresence = await pool.query(
@@ -40,44 +51,43 @@ router.post("/signUp", async (req: Request, res: Response) => {
 	}
 });
 
-
 router.post("/signIn", async (req: Request, res: Response) => {
-  try {
-    const {username, password} = req.body;
+	try {
+		const { username, password }: signInInfo = req.body;
 
-    // Checking if their exist a user or not
-    const user = await pool.query(
-      "SELECT * FROM users WHERE username=$1",
-      [username]
-    );
-    if(user.rowCount === 0){
-      return res.status(400).send({ message: "No user exist"});
-    }
+		// Checking if their exist a user or not
+		const user = await pool.query("SELECT * FROM users WHERE username=$1", [
+			username,
+		]);
+		if (user.rowCount === 0) {
+			return res.status(400).send({ message: "No user exist" });
+		}
 
-    // If exist then verifing the password.
-    const verifyPassword = await bcrypt.compare(password, user.rows[0].user_password); 
-    if(!verifyPassword) {
-      return res.status(400).send({ message: "Incorrect Password"});
-    }
+		// If exist then verifing the password.
+		const verifyPassword = await bcrypt.compare(
+			password,
+			user.rows[0].user_password
+		);
+		if (!verifyPassword) {
+			return res.status(400).send({ message: "Incorrect Password" });
+		}
 
-    // If valid credentials
-    const payload = user.rows[0];
-    const token = await jwt.sign(payload,JWT_SECRET as string); // typecast because JWT_SECRET : undefined | string but jwt.sign only wants string.
+		// If valid credentials
+		const payload = user.rows[0];
+		const token = await jwt.sign(payload, JWT_SECRET as string); // typecast because JWT_SECRET : undefined | string but jwt.sign only wants string.
 
-    // Send the message and token.
-    res.cookie("jwt", token);
-    res.status(200).send({ result: "Login Successful"});
-
-  } catch (error) {
-    console.log(error.message);
+		// Send the message and token.
+		res.cookie("jwt", token);
+		res.status(200).send({ result: "Login Successful" });
+	} catch (error) {
+		console.log(error.message);
 		res.status(500).send({ message: "Internal server error occured" });
-  }
-
+	}
 });
 
-router.get("/logout", (req:Request, res:Response) => {
-    res.clearCookie('jwt');
-    res.status(200).send({ message: 'Succesfully logged out.' });
-})
+router.get("/logout", (req: Request, res: Response) => {
+	res.clearCookie("jwt");
+	res.status(200).send({ message: "Succesfully logged out." });
+});
 
 export default router;
