@@ -8,6 +8,7 @@ import authUserMiddleware from "../middleware/authUserMiddleware";
 import { AuthenticatedRequest } from "../middleware/authUserMiddleware";
 
 import authRoutes from '../routes/authRoutes';
+import postRoutes from '../routes/postRoutes';
 const app = express();
 
 const corsOptions = {
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth',authRoutes);
+app.use('/api/posts',postRoutes);
 
 app.get("/",authUserMiddleware, (req:AuthenticatedRequest,res:Response)=>{
     res.send(req.user);
