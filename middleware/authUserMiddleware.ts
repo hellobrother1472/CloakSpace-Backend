@@ -1,16 +1,11 @@
 import { NextFunction, Response, Request } from 'express';
 import jwt from 'jsonwebtoken';
-
-export interface AuthenticatedRequest extends Request {
-    user ?: any;
-}
+import { AuthenticatedRequest } from '../types';
 
 const authUserMiddleware =async (req:AuthenticatedRequest,res:Response,next:NextFunction) => {
     try {
-
         const token = req.cookies.jwt;
         const decode = await jwt.verify(token,process.env.JWT_SECRET as string);
-        // console.log(decode);
         if(!decode) {
             res.status(401).send({ message: "Login First" })
             return;

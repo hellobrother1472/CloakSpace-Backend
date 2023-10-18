@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 const router = express.Router();
 import pool from "../database/poolConfig";
 import authUserMiddleware from "../middleware/authUserMiddleware";
-import { AuthenticatedRequest } from "../middleware/authUserMiddleware";
+import { AuthenticatedRequest } from "../types";
 import {addVoteInteraction,alterVoteInteraction,deleteVoteInteraction} from "../utils/upvoteAndDownvoteFunctions";
 
 router.post("/vote",authUserMiddleware, async (req: AuthenticatedRequest, res: Response) => {
@@ -46,13 +46,17 @@ router.post("/vote",authUserMiddleware, async (req: AuthenticatedRequest, res: R
 );
 
 router.post("/postComment",async (req:Request,res:Response)=>{
+	const client = await pool.connect();
     try {
         const{post_id,user_id,comment_content} = req.body;
-        await pool.query('INSERT INTO comments(post_id,user_id,comment) VALUES ($1,$2,$3)',[post_id,user_id,comment_content]);
-        
+		await client.query("BEGIN");
+        await client.query('INSERT INTO comments(post_id,user_id,comment) VALUES ($1,$2,$3)',[post_id,user_id,comment_content]);
+        await client.query(`UPDATE posts SET comments_count = comments_count + 1 WHERE post_id=${post_id};`);
+        await client.query("COMMIT");
         res.status(200).send({message : 'Successfully posted'});        
     } catch (error) {
         console.log(error);  
+		await client.query("ROLLBACK");
         res.status(500).send({ message: "Unable to post" })     
     }
     

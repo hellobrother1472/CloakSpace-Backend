@@ -5,7 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import authUserMiddleware from "../middleware/authUserMiddleware";
-import { AuthenticatedRequest } from "../middleware/authUserMiddleware";
+import { AuthenticatedRequest } from "../types";
 
 import authRoutes from '../routes/authRoutes';
 import postRoutes from '../routes/postRoutes';

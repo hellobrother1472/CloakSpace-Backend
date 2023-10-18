@@ -3,20 +3,10 @@ const router = express.Router();
 import pool from "../database/poolConfig";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { signInInfo, signUpInfo } from "../types";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const saltRounds = 10;
-
-interface signUpInfo {
-	username: string;
-	email: string;
-	user_password: string;
-}
-
-interface signInInfo {
-	username: string;
-	password: string;
-}
 
 router.post("/signUp", async (req: Request, res: Response) => {
 	try {
